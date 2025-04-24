@@ -1,4 +1,4 @@
-def insertionSort(items: list[int]):
+def insertion_sort(items: list[int]):
     len_items = len(items)
     for i in range(1, len_items):
         j = i
