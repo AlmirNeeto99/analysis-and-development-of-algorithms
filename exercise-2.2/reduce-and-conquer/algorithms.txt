@@ -1,0 +1,35 @@
+def insertion_sort(items: list[int]):
+    len_items = len(items)
+    for i in range(1, len_items):
+        j = i
+        while j > 0 and items[j] < items[j - 1]:
+            items[j], items[j - 1] = items[j - 1], items[j]
+            j -= 1
+
+def lomuto_partition(
+    items: list[int],
+    left: int,
+    right: int,
+):
+    pivot = items[right]
+    i = left - 1
+
+    for j in range(left, right):
+        if items[j] <= pivot:
+            i += 1
+            items[i], items[j] = items[j], items[i]
+    right_place = i + 1
+    items[right_place], items[right] = items[right], items[right_place]
+    return right_place
+
+def quick_select(items: list[int], left: int, right: int, k: int):
+    index = lomuto_partition(items, left, right)
+    search = k - 1
+
+    if index == search:
+        return items[index]
+    else:
+        if index > search:
+            return quick_select(items, left, index - 1, k)
+        else:
+            return quick_select(items, index + 1, right, k)
