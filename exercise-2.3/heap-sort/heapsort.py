@@ -1,27 +1,28 @@
-def get_max(arr, left, right):
-    arr_len = len(arr)
-    if left >= arr_len:
-        return arr_len
-    if right >= arr_len:
+def get_max(arr, left, right, n):
+    if left >= n:
+        return n
+    if right >= n:
         return left
-    if arr[left] >= arr[right]:
-        return left
-    return right
+    return left if arr[left] > arr[right] else right
 
 
-def max_heapify(arr, size, i):
-    c = get_max(arr, 2 * i + 1, 2 * i + 2)
-    while c < size and arr[c] > arr[i]:
+def max_heapify(arr, i, n):
+    c = get_max(arr, 2 * i + 1, 2 * i + 2, n)
+    while c < n and arr[i] < arr[c]:
         arr[i], arr[c] = arr[c], arr[i]
         i = c
-        c = get_max(arr, 2 * i + 1, 2 * i + 2)
+        c = get_max(arr, 2 * i + 1, 2 * i + 2, n)
 
 
-def build_max_heap(arr):
-    arr_len = len(arr)
-    for i in range(arr_len // 2 - 1, -1, -1):
-        max_heapify(arr, arr_len, i)
+def build_max_heap(arr, n):
+    for i in range((n - 1) // 2, -1, -1):
+        max_heapify(arr, i, n)
 
 
-def heapsort(arr):
-    pass
+def heap_sort(arr):
+    n = len(arr)
+    build_max_heap(arr, n)
+    for i in range(n - 1, 0, -1):
+        arr[0], arr[i] = arr[i], arr[0]
+        max_heapify(arr, 0, i)
+    return arr
