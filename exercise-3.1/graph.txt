@@ -1,0 +1,121 @@
+from heapq import heappush, heappop
+from queue import Queue
+
+
+class Graph:
+    def __init__(self):
+        self.vertexMap = dict()
+
+    def addVertex(self, v):
+        self.vertexMap[v] = dict()
+
+    def removeVertex(self, v):
+        if v in self.vertexMap:
+            for i, j in self.vertexMap[v].copy():
+                print(f"e->{(i,j)}")
+                self.removeEdge(i, j)
+            del self.vertexMap[v]
+
+    def vertices(self):
+        return list(self.vertexMap.keys())
+
+    def adjacents(self, v):
+        return [j for (i, j) in self.outgoing(v)]
+
+    def addEdge(self, u, v, data):
+        if (u in self.vertexMap) and (v in self.vertexMap):
+            self.vertexMap[u][(u, v)] = data
+            self.vertexMap[v][(v, u)] = data
+        else:
+            raise ValueError(
+                f"One or both of the V {u} and {v} are not present in the Graph!"
+            )
+
+    def removeEdge(self, u, v):
+        if ((u, v) in self.vertexMap[u]) and ((v, u) in self.vertexMap[v]):
+            del self.vertexMap[u][(u, v)]
+            del self.vertexMap[v][(v, u)]
+
+    def edges(self):
+        return [list(e.keys()) for e in self.vertexMap.values() if len(e.keys())]
+
+    def getEdge(self, u, v):
+        return self.vertexMap[u][(u, v)]
+
+    def outgoing(self, v):
+        return list(self.vertexMap[v].keys())
+
+    def outdegree(self, v):
+        return len(self.vertexMap[v])
+
+    def incoming(self, v):
+        return [(j, i) for (i, j) in self.vertexMap[v]]
+
+    def indegree(self, v):
+        return len(self.vertexMap[v])
+
+
+def dfs_recursive(G: Graph, v: str, visited: set, path: list):
+
+    visited.add(v)
+
+    for a in G.adjacents(v):
+        if a not in visited:
+            path.append(a)
+            dfs_recursive(G, a, visited, path)
+
+
+def dfs(G: Graph, v: str):
+    visited = set()
+    path = []
+
+    dfs_recursive(G, v, visited, path)
+    return path
+
+
+def bfs(G: Graph, v: str):
+
+    visited = set()
+    path = []
+    queue = Queue()
+
+    queue.put(v)
+    visited.add(v)
+
+    while not queue.empty():
+        e = queue.get()
+        for u in G.adjacents(e):
+            if u not in visited:
+                visited.add(u)
+                queue.put(u)
+                path.append(u)
+    return path
+
+
+def shortest_path(v: str, u: str, path: dict):
+    shortest_path = []
+    while v != u:
+        (p, _) = path[u]
+        shortest_path.insert(0, u)
+        u = p
+    shortest_path.insert(0, u)
+    return shortest_path
+
+
+def dijkstra(G: Graph, v: str, u: str):
+    path = dict()
+    min_heap = list()
+
+    heappush(min_heap, (0, v, None))
+
+    while min_heap != 0:
+        (dist, x, p) = heappop(min_heap)
+        if x == u:
+            path[x] = (p, dist)
+            return shortest_path(v, u, path)
+        if x not in path:
+            path[x] = (p, dist)
+            for t in G.adjacents(x):
+                dist_2 = dist + G.getEdge(x, t)
+                if t not in path or dist_2 < path[t][1]:
+                    heappush(min_heap, (dist_2, t, x))
