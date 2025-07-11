@@ -1,0 +1,88 @@
+def get_edges_with_weight(G: Graph) -> list[tuple[str, str, int]]:
+    edges = []
+    g_edges = G.edges()
+    for u, v in g_edges:
+        weight = G.getEdge(u, v)
+        edges.append((u, v, weight))
+    return edges
+
+
+def get_min_edge(G: Graph) -> tuple[str, str, int]:
+    edges = get_edges_with_weight(G)
+    edges = sorted(edges, key=lambda e: e[2])
+    return edges[0]
+
+
+def get_adjacent_edges(G: Graph, v: list[str]):
+    edges = []
+    for vertice in v:
+        adjacents = G.adjacents(vertice)
+        for a in adjacents:
+            weight = G.getEdge(vertice, a)
+            edges.append((vertice, a, weight))
+    return edges
+
+
+def dfs_recursive(G: Graph, v: str, visited: set, path: list):
+
+    visited.add(v)
+
+    for a in G.adjacents(v):
+        if a not in visited:
+            path.append(a)
+            dfs_recursive(G, a, visited, path)
+
+
+def dfs(G: Graph, v: str):
+    visited = set()
+    path = []
+
+    dfs_recursive(G, v, visited, path)
+    return path
+
+
+def prims(G: Graph):
+    T = Graph()
+    min_edge = get_min_edge(G)
+
+    T.addVertex(min_edge[0])
+    T.addVertex(min_edge[1])
+    T.addEdge(*min_edge)
+
+    while (len(T.edges()) // 2) < len(G.vertices()) - 1:
+        vertices = T.vertices()
+        edges = get_adjacent_edges(G, vertices)
+        sorted_edges = sorted(edges, key=lambda e: e[2])
+        for u, v, weight in sorted_edges:
+            if u not in vertices:
+                T.addVertex(u)
+                T.addEdge(u, v, weight)
+                break
+            elif v not in vertices:
+                T.addVertex(v)
+                T.addEdge(u, v, weight)
+                break
+    return T
+
+
+def kruskals(G: Graph):
+    T = Graph()
+    edges = get_edges_with_weight(G)
+    edges = sorted(edges, key=lambda e: e[2])
+
+    while (len(T.edges()) // 2) < len(G.vertices()) - 1:
+        for u, v, weight in edges:
+            has_edge = (u, v) in T.edges()
+            try:
+                has_cicle = v in dfs(T, u)
+            except KeyError:
+                has_cicle = False
+            if not has_edge and not has_cicle:
+                if u not in T.vertices():
+                    T.addVertex(u)
+                if v not in T.vertices():
+                    T.addVertex(v)
+                T.addEdge(u, v, weight)
+                break
+
+    return T
